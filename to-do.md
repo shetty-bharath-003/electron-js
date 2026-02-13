@@ -6,7 +6,6 @@
 
 * Electron architecture
 * IPC communication
-* CRUD basics (Create, Read, Update, Delete)
 * Local storage with `electron-store`
 
 ---
