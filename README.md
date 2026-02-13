@@ -265,120 +265,6 @@ app.whenReady().then(createWindow);
 
 ---
 
-## Part 4 — Native OS Integration
-
-Electron gives you access to native OS features through built-in modules.
-
----
-
-### File System — Read and Write Files
-
-```js
-// In main.js
-const { ipcMain } = require('electron');
-const fs = require('fs');
-const path = require('path');
-
-ipcMain.handle('read-file', async () => {
-  const filePath = path.join(__dirname, 'data.txt');
-  const content = fs.readFileSync(filePath, 'utf-8');
-  return content;
-});
-
-ipcMain.handle('write-file', async (event, content) => {
-  const filePath = path.join(__dirname, 'data.txt');
-  fs.writeFileSync(filePath, content, 'utf-8');
-  return 'File saved.';
-});
-```
-
----
-
-### Native File Open / Save Dialogs
-
-```js
-// In main.js
-const { ipcMain, dialog } = require('electron');
-const fs = require('fs');
-
-ipcMain.handle('open-file-dialog', async () => {
-  const result = await dialog.showOpenDialog({
-    properties: ['openFile'],
-    filters: [{ name: 'Text Files', extensions: ['txt'] }]
-  });
-
-  if (!result.canceled) {
-    const content = fs.readFileSync(result.filePaths[0], 'utf-8');
-    return content;
-  }
-  return null;
-});
-```
-
-Expose it in `preload.js`:
-
-```js
-contextBridge.exposeInMainWorld('electronAPI', {
-  openFile: () => ipcRenderer.invoke('open-file-dialog')
-});
-```
-
-Use it in your HTML:
-
-```html
-<button id="open">Open File</button>
-<pre id="content"></pre>
-
-<script>
-  document.getElementById('open').addEventListener('click', async () => {
-    const text = await window.electronAPI.openFile();
-    if (text) document.getElementById('content').innerText = text;
-  });
-</script>
-```
-
----
-
-### System Tray
-
-```js
-// In main.js
-const { app, Tray, Menu, nativeImage } = require('electron');
-const path = require('path');
-
-let tray;
-
-app.whenReady().then(() => {
-  const icon = nativeImage.createFromPath(path.join(__dirname, 'icon.png'));
-  tray = new Tray(icon);
-
-  const contextMenu = Menu.buildFromTemplate([
-    { label: 'Show App', click: () => { /* show window */ } },
-    { label: 'Quit', click: () => app.quit() }
-  ]);
-
-  tray.setToolTip('My Electron App');
-  tray.setContextMenu(contextMenu);
-});
-```
-
----
-
-### Notifications
-
-```js
-// In main.js
-const { Notification } = require('electron');
-
-function sendNotification() {
-  new Notification({
-    title: 'Electron App',
-    body: 'This is a native desktop notification.'
-  }).show();
-}
-```
-
----
 
 ## Part 5 — Packaging and Distribution
 
@@ -450,20 +336,13 @@ my-electron-app/
 | `ipcMain.handle` | Main process listens for a request and can return a value |
 | `ipcRenderer.invoke` | Renderer sends a request and waits for a reply |
 | `contextBridge` | Safely exposes Main Process APIs to the Renderer |
-| `dialog` | Native open/save file dialogs |
-| `Tray` | Adds your app to the system tray |
-| `Notification` | Sends a native OS notification |
 | `electron-forge` | Packages and builds your app for distribution |
 
 ---
 
 ## What to Explore Next
 
-- Auto-updater with `electron-updater`
-- SQLite or LevelDB for local data storage
 - Multiple windows and window management
-- Custom menus and keyboard shortcuts with `Menu` and `globalShortcut`
-- Deep linking and protocol handlers
 - Using React, Vue, or Svelte as the Renderer UI framework
 
 ---
