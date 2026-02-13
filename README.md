@@ -65,7 +65,7 @@ The Main process and Renderer process communicate using IPC.
 
 ---
 
-# Part 2 — Creating a New Electron Project (Modern Method)
+# Part 2 — Creating a New Electron Project 
 
 Instead of manually creating files, we use a project generator.
 
